@@ -121,12 +121,13 @@ aside.side { position: absolute; left: 0; top: 0; bottom: 0; z-index: 7; width: 
 .fr.empty { opacity: .45; }
 .fr:focus-visible { outline: 3px solid var(--sun); outline-offset: 1px; }
 
-aside.side footer { padding: 10px 16px 12px; border-top: 2px solid rgba(26, 11, 46, .3); font-size: 12.5px; color: var(--blush); }
-aside.side footer p { margin: 0 0 6px; }
-aside.side footer .links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
-aside.side footer a { color: #fff; font-weight: 600; text-decoration: none; border-radius: 3px; }
-aside.side footer a:hover { text-decoration: underline; }
-aside.side footer a:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+aside.side footer { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 16px 12px;
+  border-top: 1px solid rgba(255, 255, 255, .25); }
+aside.side footer a { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 12.5px; font-weight: 600; text-decoration: none;
+  border-radius: 4px; opacity: .9; transition: opacity .12s, transform .12s; }
+aside.side footer a:hover { opacity: 1; transform: translateY(-1px); }
+aside.side footer a:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; opacity: 1; }
+aside.side footer img, aside.side footer svg { display: block; flex: none; }
 
 .nav-reopen { position: absolute; left: 16px; top: 16px; z-index: 7; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px 0 10px;
   border: 2px solid var(--ink); border-radius: 4px; background: var(--pink); color: #fff; cursor: pointer; font-weight: 700; font-size: 14px;

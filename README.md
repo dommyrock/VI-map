@@ -4,7 +4,9 @@ An interactive fan map of Leonida, the state where the upcoming GTA VI takes pla
 
 **Live: https://dommyrock.github.io/VI-map/**
 
-<!-- ![VI-map screenshot](docs/screenshot.png) -->
+<a href="https://buymeacoffee.com/dommyrock"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="40"></a>
+
+[![VI-map: Vice City selected, with the filters sidebar and region drawer open](docs/screenshot.jpg)](https://dommyrock.github.io/VI-map/)
 
 ## Why
 
@@ -14,10 +16,23 @@ It's also a playground for poking at the pre-release map data. All 419 points of
 
 ## Using the map
 
+### Moving around
+
+| Action | Mouse / trackpad | Touch |
+| --- | --- | --- |
+| Pan | Drag the map | Drag with one finger |
+| Zoom | Scroll, or the **+** / **−** buttons | Pinch |
+| Jump somewhere | Click a spot on the **minimap** (bottom right) | Tap the minimap |
+| Back to the overview | **Reset view** button (under the zoom buttons) or the **All of Leonida** tab | Same |
+
+The map opens on a close-up overview of the mainland; zoom out to see the whole state.
+
+### Finding things
+
 - **Search**: type in the search box to find locations by name, category, region or description. Click a result to fly to it and open its popup. If its category is hidden or a region filter excludes it, the map turns those back on for you.
-- **Categories**: the sidebar lists every category by group, with a live count of how many are visible. Toggle them one by one, or use **All** / **None**.
-- **Regions**: click a region chip (or the region on the map) to focus it and zoom to fit. **Cmd/Ctrl/Shift-click** adds or removes regions to compare several at once. **Clear** resets the filter.
-- **Region drawer**: focusing a region opens a drawer with a postcard, a short summary, its real-world inspiration, a per-category breakdown and key locations. Click a category chip there to **isolate** it (show only that category); click it again to restore your previous selection. Close the drawer with ×, and bring it back with the ⓘ pill.
+- **Categories**: the sidebar lists every category by group, with a live count of how many are in view. Click a row to toggle it, or use **Show all** / **Hide all**. Collapse the sidebar with the panel button at its top to give the map the full width; the **Filters** button brings it back.
+- **Regions**: click a region tab in the header (or the region on the map) to focus it and zoom to fit. **Cmd/Ctrl/Shift-click** adds or removes regions to compare several at once. **All of Leonida** clears the filter.
+- **Region drawer**: focusing a region opens a drawer with a postcard, a short summary, its real-world inspiration, a per-category breakdown and must-see locations. Click a category chip there to **isolate** it (show only that category); click it again to restore your previous selection. Close the drawer with ×, and bring it back with the **About …** button.
 - **Popups**: click a marker for its name, category, region and map coordinates. Hovering over markers and regions shows a tooltip.
 - **Shareable links**: the URL keeps the selected regions and the open location (`?region=vice-city,ambrosia&f=<id>`), so you can copy the address bar to share exactly what you're looking at.
 
@@ -57,7 +72,7 @@ tools/         Python region tracer (build_regions.py)
 public/        Static files: icons, region postcards, favicon, generated tiles
 src/
   pages/       The single Astro page
-  components/  Preact UI: sidebar, search, category list, region chips, drawer, popups
+  components/  Preact UI: header + region tabs, sidebar, search, category list, drawer, map controls, popups
   state/       nanostores state, actions, derived data and URL sync
   views/       MapLibre map view (tiles, region overlay, markers, labels)
   lib/         Data schema (zod), dataset loading, map-space and geometry helpers
@@ -81,7 +96,9 @@ Everything uses image pixels as coordinates, mapped onto a flat MapLibre space.
 
 ## Support
 
-If you enjoy the map, you can [buy me a coffee](https://buymeacoffee.com/dommyrock) ☕
+Want more cool analysis and infographic add-ons? A small coffee keeps them coming ☕
+
+<a href="https://buymeacoffee.com/dommyrock"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="40"></a>
 
 ## Disclaimer
 
