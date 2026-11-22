@@ -21,7 +21,9 @@ async function boot(regionInfo: Record<string, RegionInfo>): Promise<AppContext>
   const actions = createActions(data, stores, derived, focus);
   // Apply ?region= / ?f= before the view exists: the first camera intent then jumps, not flies.
   applyUrl(data, actions);
-  return { data, stores, derived, actions, focus, regionInfo };
+  const ctx = { data, stores, derived, actions, focus, regionInfo };
+  if (import.meta.env.DEV) (window as unknown as { __app: AppContext }).__app = ctx; // debugging aid
+  return ctx;
 }
 
 export default function MapIsland({ regionInfo }: { regionInfo: Record<string, RegionInfo> }) {

@@ -30,7 +30,7 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     container: el,
     style: baseStyle(),
     bounds: imageBounds,
-    fitBoundsOptions: { padding: 24 },
+    fitBoundsOptions: { padding: EDGE },
     minZoom: TILE_ZOOMS.min + 0.6,
     maxZoom: 17.5,
     maxBounds: imageBounds,
@@ -140,7 +140,8 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     frame = 0;
     const ev = lastMove;
     if (!ev || !loaded) return;
-    const [x, y] = lngLatToPx([ev.lngLat.lng, ev.lngLat.lat]);
+    const lngLat = map.unproject(ev.point); // not ev.lngLat: the camera may have moved since
+    const [x, y] = lngLatToPx([lngLat.lng, lngLat.lat]);
     coords.textContent = `x ${x.toFixed(0)}  y ${y.toFixed(0)}`;
     const poi = map.queryRenderedFeatures(ev.point, { layers: [LAYERS.pois] })[0];
     if (poi) {
@@ -157,7 +158,7 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     if (reg) {
       const r = data.regionById.get(reg.properties.id as string)!;
       actions.setHover({ kind: 'region', id: r.id });
-      tooltip.setHTML(esc(r.name)).setOffset(10).setLngLat(ev.lngLat);
+      tooltip.setHTML(esc(r.name)).setOffset(10).setLngLat(lngLat);
       if (!tooltip.isOpen()) tooltip.addTo(map);
       map.getCanvas().style.cursor = 'pointer';
       return;
@@ -174,7 +175,9 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     if (!frame) frame = requestAnimationFrame(pointer);
   });
   map.on('mouseout', () => { lastMove = null; clearPointer(); coords.textContent = ''; });
-  map.on('dragstart', () => tooltip.remove());
+  // The camera moving under a still pointer makes hover stale: drop it, re-evaluate when settled.
+  map.on('movestart', () => { tooltip.remove(); actions.setHover(null); });
+  map.on('moveend', () => { if (lastMove && !frame) frame = requestAnimationFrame(pointer); });
 
   map.on('click', (ev) => {
     if (!loaded) return;
@@ -188,7 +191,8 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     const reg = map.queryRenderedFeatures(ev.point, { layers: [LAYERS.regionFill] })[0];
     if (reg) {
       const o = ev.originalEvent;
-      actions.toggleRegion(reg.properties.id as string, { multi: o.metaKey || o.ctrlKey || o.shiftKey, fly: false });
+      // Fit like the sidebar chips do (the prototype didn't move here, but the drawer now overlays the map).
+      actions.toggleRegion(reg.properties.id as string, { multi: o.metaKey || o.ctrlKey || o.shiftKey });
     }
   });
 

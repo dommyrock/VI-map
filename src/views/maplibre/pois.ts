@@ -63,9 +63,9 @@ export function addPois(map: MLMap, ctx: ViewContext, cameraSettled: () => Promi
   map.addLayer({
     id: LAYERS.poiRing, type: 'circle', source: HL_SRC, filter: ['==', ['get', 'role'], 'selected'],
     paint: {
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 10, 15, 19, 17, 21],
-      'circle-color': '#ff4f9a', 'circle-opacity': 0.18,
-      'circle-stroke-color': '#ff4f9a', 'circle-stroke-width': 2.5, 'circle-blur': 0.3,
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 11, 15, 22, 17, 24],
+      'circle-color': '#ff4f9a', 'circle-opacity': 0.22,
+      'circle-stroke-color': '#ff4f9a', 'circle-stroke-width': 2.5, 'circle-stroke-opacity': 0.95,
     },
   });
   const symbolLayout = (k: number) => ({
