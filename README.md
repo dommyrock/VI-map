@@ -1,6 +1,6 @@
 # VI-map
 
-An interactive fan map of Leonida, the state where the upcoming GTA VI takes place: regions, locations and activities on one zoomable map.
+An interactive fan map of Leonida, the state where GTA VI takes place: regions, locations and activities on one zoomable map.
 
 **Live: https://dommyrock.github.io/VI-map/**
 
@@ -10,9 +10,9 @@ An interactive fan map of Leonida, the state where the upcoming GTA VI takes pla
 
 ## Why
 
-Mostly for fun: a fan project to explore Leonida before the game is out.
+Mostly for fun: a fan project for exploring Leonida.
 
-It's also a playground for poking at the pre-release map data. All 419 points of interest are tagged with a region and a category, so questions like "how many gas stations are in Vice City?" or "which region has the most activities?" are a click away. Right now that's 6 regions, 16 categories in 5 groups, and Vice City alone holds 177 of the 419 locations.
+It's also a playground for poking at the map data. All 419 points of interest are tagged with a region and a category, so questions like "how many gas stations are in Vice City?" or "which region has the most activities?" are a click away. Right now that's 6 regions, 16 categories in 5 groups, and Vice City alone holds 177 of the 419 locations.
 
 ## Using the map
 
@@ -125,4 +125,4 @@ The code is released under the [MIT License](LICENSE). The license covers the co
 
 ## Data source & updates
 
-Locations come from the community-mapped **[Mobalytics](https://mobalytics.gg/)** pre-release data for GTA VI. Since the game isn't out yet, expect changes: the map will be updated as new info comes in. Spotted something wrong or missing? [Open an issue](https://github.com/dommyrock/VI-map/issues).
+Locations come from the community-mapped **[Mobalytics](https://mobalytics.gg/)** data for GTA VI (released 19 November 2026). The community is still mapping the game, so expect additions: the map will be updated as new info comes in. Spotted something wrong or missing? [Open an issue](https://github.com/dommyrock/VI-map/issues).
