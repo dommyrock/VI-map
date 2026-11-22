@@ -3,6 +3,8 @@ import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 
 export default defineConfig({
+  site: 'https://dommyrock.github.io',
+  base: '/VI-map',
   integrations: [preact()],
   devToolbar: { enabled: false },
   vite: {

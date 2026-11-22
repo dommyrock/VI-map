@@ -23,7 +23,9 @@ const iconSize = (k = 1): ExpressionSpecification => [
 ];
 
 async function loadIcon(url: string): Promise<ImageData> {
-  const blob = await (await fetch(url)).blob();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`icon ${url}: HTTP ${res.status}`);
+  const blob = await res.blob();
   const bmp = await createImageBitmap(blob, { resizeWidth: ICON_PX, resizeHeight: ICON_PX, resizeQuality: 'high' });
   const size = ICON_PX + PAD * 2;
   const canvas = document.createElement('canvas');
