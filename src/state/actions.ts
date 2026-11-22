@@ -50,6 +50,14 @@ export function createActions(ds: Dataset, s: Stores, d: Derived, focus: FocusBu
       setFilters({ regions: new Set() });
       if (fly) focus.emit({ target: { home: true } });
     },
+    /** Logo click: back to the default site (all categories, no region, no search or popup, home view). */
+    resetAll() {
+      s.query.set('');
+      s.selection.set({ featureId: null });
+      setFilters({ regions: new Set(), categories: allCategories() });
+      s.drawerDismissed.set(false);
+      focus.emit({ target: { home: true } });
+    },
 
     setCategory(id: string, on: boolean) {
       const next = new Set(s.filters.get().categories);
