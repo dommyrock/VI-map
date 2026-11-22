@@ -81,8 +81,7 @@ Everything uses image pixels as coordinates, mapped onto a flat MapLibre space.
 
 ## Support
 
-If you enjoy the map, you can [buy me a coffee](https://buymeacoffee.com/USERNAME) ☕
-<!-- TODO: replace USERNAME with the real Buy Me a Coffee handle -->
+If you enjoy the map, you can [buy me a coffee](https://buymeacoffee.com/dommyrock) ☕
 
 ## Disclaimer
 

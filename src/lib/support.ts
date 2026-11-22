@@ -2,7 +2,7 @@
  * Buy Me a Coffee username (the part after buymeacoffee.com/).
  * Leave empty to hide the tip link entirely.
  */
-export const BUYMEACOFFEE_USERNAME = '';
+export const BUYMEACOFFEE_USERNAME = 'dommyrock';
 
 export const SOURCE_URL = 'https://github.com/dommyrock/VI-map';
 
