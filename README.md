@@ -104,8 +104,10 @@ Want more cool analysis and infographic add-ons? A small coffee keeps them comin
 
 This is an unofficial fan project. It is not affiliated with or endorsed by Rockstar Games or Take-Two Interactive. Grand Theft Auto and GTA are trademarks of Take-Two Interactive Software, Inc. Map imagery and location names belong to their respective owners.
 
-POI data was originally sourced from community map data by [Mobalytics](https://mobalytics.gg/).
-
 ## License
 
 The code is released under the [MIT License](LICENSE). The license covers the code only, not the map imagery, icons or game-related content.
+
+## Data source & updates
+
+Locations come from the community-mapped **[Mobalytics](https://mobalytics.gg/)** pre-release data for GTA VI. Since the game isn't out yet, expect changes: the map will be updated as new info comes in. Spotted something wrong or missing? [Open an issue](https://github.com/dommyrock/VI-map/issues).
