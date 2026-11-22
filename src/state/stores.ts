@@ -30,8 +30,8 @@ export function createStores(ds: Dataset) {
     hover: atom<Hover>(null),
     /** Category set to restore when a drawer chip's isolation is toggled off. */
     restoreCategories: atom<ReadonlySet<string> | null>(null),
-    /** User closed the drawer for the current single-region selection. */
-    drawerDismissed: atom(false),
+    /** Drawer closed for the current region. Starts closed; the "About …" pill opens it. */
+    drawerDismissed: atom(true),
     insets: atom<Insets>({ bottom: 0, left: 0 }),
     /** Filters sidebar expanded. UI-only: not in the URL. */
     navOpen: atom(wideScreen()),

@@ -48,6 +48,9 @@ export function Drawer() {
       {region && !open && !is3d && (
         <button class="details-pill" style={{ '--c': region.color }} onClick={() => actions.openDrawer()}>
           About {region.name}
+          <svg class="nudge" viewBox="0 0 20 12" width="20" height="12" aria-hidden="true">
+            <path d="M3 10l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
         </button>
       )}
     </>

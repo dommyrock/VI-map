@@ -16,7 +16,8 @@ export function createActions(ds: Dataset, s: Stores, d: Derived, focus: FocusBu
     const regionChanged = next.regions && !sameSet(next.regions, prev.regions);
     s.filters.set({ ...prev, ...next });
     if (!keepRestore && next.categories) s.restoreCategories.set(null);
-    if (regionChanged) s.drawerDismissed.set(false);
+    // The drawer stays closed on a region change; the "About …" pill opens it on demand.
+    if (regionChanged) s.drawerDismissed.set(true);
     // A popup for a POI that just got filtered out closes, like removing a Leaflet marker did.
     const sel = s.selection.get().featureId;
     if (sel && !d.visibleIds.get().includes(sel)) s.selection.set({ featureId: null });
@@ -55,7 +56,7 @@ export function createActions(ds: Dataset, s: Stores, d: Derived, focus: FocusBu
       s.query.set('');
       s.selection.set({ featureId: null });
       setFilters({ regions: new Set(), categories: allCategories() });
-      s.drawerDismissed.set(false);
+      s.drawerDismissed.set(true);
       focus.emit({ target: { home: true } });
     },
 
