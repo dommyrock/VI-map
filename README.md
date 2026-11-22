@@ -4,6 +4,8 @@ An interactive fan map of Leonida, the state where the upcoming GTA VI takes pla
 
 **Live: https://dommyrock.github.io/VI-map/**
 
+<a href="https://buymeacoffee.com/dommyrock"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="40"></a>
+
 <!-- ![VI-map screenshot](docs/screenshot.png) -->
 
 ## Why
@@ -81,7 +83,9 @@ Everything uses image pixels as coordinates, mapped onto a flat MapLibre space.
 
 ## Support
 
-If you enjoy the map, you can [buy me a coffee](https://buymeacoffee.com/dommyrock) ☕
+Want more cool analysis and infographic add-ons? A small coffee keeps them coming ☕
+
+<a href="https://buymeacoffee.com/dommyrock"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="40"></a>
 
 ## Disclaimer
 
