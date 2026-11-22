@@ -33,8 +33,8 @@ export interface MapView {
   zoomBy(delta: number): void;
   /** Center the camera on an image px position, keeping the zoom. */
   panTo(p: Px): void;
-  /** Visible extent as image fractions (0–1), on every camera change and once on subscribe. */
-  onCamera(cb: (r: { x0: number; y0: number; x1: number; y1: number }) => void): () => void;
+  /** Visible extent as image fractions (0–1) plus zoom-limit flags, on every camera change and once on subscribe. */
+  onCamera(cb: (r: { x0: number; y0: number; x1: number; y1: number; atMin: boolean; atMax: boolean }) => void): () => void;
   destroy(): void;
 }
 

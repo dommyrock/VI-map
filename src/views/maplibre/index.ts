@@ -37,19 +37,24 @@ export const createMapLibreView: CreateView = (el, ctx) => {
   const [w, s, e, n] = imageLngLatBounds();
   const imageBounds = new LngLatBounds([w, s], [e, n]);
 
+  const MAX_ZOOM = 17.5;
+  /** Current zoom-out cap (whole map fits the window); set by updateMinZoom below. */
+  let minZoom = TILE_ZOOMS.min + 0.6;
+
   const map = new MLMap({
     container: el,
     style: baseStyle(),
     bounds: imageBounds,
     fitBoundsOptions: { padding: EDGE },
-    minZoom: TILE_ZOOMS.min + 0.6,
-    maxZoom: 17.5,
+    minZoom,
+    maxZoom: MAX_ZOOM,
     maxBounds: imageBounds,
     // Keep the camera center inside the image (the default maxBounds behaviour would forbid
-    // zooming out far enough to see the whole, tall map in a wide window).
+    // zooming out far enough to see the whole, tall map in a wide window). A custom constrain
+    // replaces MapLibre's own, so it must clamp the zoom range itself too.
     transformConstrain: (center, zoom) => ({
       center: new LngLat(Math.min(e, Math.max(w, center.lng)), Math.min(n, Math.max(s, center.lat))),
-      zoom,
+      zoom: Math.min(MAX_ZOOM, Math.max(minZoom, zoom)),
     }),
     renderWorldCopies: false,
     dragRotate: false,
@@ -61,6 +66,20 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     fadeDuration: 0,
   });
   map.touchZoomRotate.disableRotation();
+
+  // Zoom-out stops where the whole map fits the window (what the minimap shows): no zooming out
+  // into empty sea. At nativeZoom one image px is one CSS px, and the image spans a sliver of
+  // latitude near the equator, so the fit zoom is plain arithmetic (no Mercator correction needed).
+  const MIN_ZOOM_PAD = 16;
+  const updateMinZoom = () => {
+    const c = map.getContainer();
+    const scale = Math.min((c.clientWidth - 2 * MIN_ZOOM_PAD) / MAP_SPACE.width, (c.clientHeight - 2 * MIN_ZOOM_PAD) / MAP_SPACE.height);
+    if (scale <= 0) return;
+    minZoom = Math.max(TILE_ZOOMS.min, MAP_SPACE.nativeZoom + Math.log2(scale));
+    map.setMinZoom(minZoom);
+  };
+  updateMinZoom();
+  map.on('resize', updateMinZoom);
   map.keyboard.disableRotation();
 
   // ---------- camera ----------
@@ -233,7 +252,11 @@ export const createMapLibreView: CreateView = (el, ctx) => {
         const b = map.getBounds();
         const [x0, y0] = lngLatToPx([b.getWest(), b.getNorth()]);
         const [x1, y1] = lngLatToPx([b.getEast(), b.getSouth()]);
-        cb({ x0: x0 / MAP_SPACE.width, y0: y0 / MAP_SPACE.height, x1: x1 / MAP_SPACE.width, y1: y1 / MAP_SPACE.height });
+        const z = map.getZoom();
+        cb({
+          x0: x0 / MAP_SPACE.width, y0: y0 / MAP_SPACE.height, x1: x1 / MAP_SPACE.width, y1: y1 / MAP_SPACE.height,
+          atMin: z <= map.getMinZoom() + 1e-3, atMax: z >= map.getMaxZoom() - 1e-3,
+        });
       };
       map.on('move', emit);
       map.on('resize', emit);

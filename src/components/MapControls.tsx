@@ -13,10 +13,15 @@ export function MapControls({ view }: { view: MapView }) {
   const { actions } = useApp();
   const box = useRef<HTMLSpanElement>(null);
   const inner = useRef<HTMLSpanElement>(null);
+  const zoomIn = useRef<HTMLButtonElement>(null);
+  const zoomOut = useRef<HTMLButtonElement>(null);
 
   useEffect(
     () =>
-      view.onCamera(({ x0, y0, x1, y1 }) => {
+      view.onCamera(({ x0, y0, x1, y1, atMin, atMax }) => {
+        // Written straight to the DOM from the move loop: no re-render while panning/zooming.
+        if (zoomOut.current && zoomOut.current.disabled !== atMin) zoomOut.current.disabled = atMin;
+        if (zoomIn.current && zoomIn.current.disabled !== atMax) zoomIn.current.disabled = atMax;
         const s = box.current?.style;
         if (!s) return;
         s.left = `${x0 * 100}%`;
@@ -37,10 +42,10 @@ export function MapControls({ view }: { view: MapView }) {
   return (
     <>
       <div class="mapctl">
-        <button class="ib" onClick={() => view.zoomBy(1)} aria-label="Zoom in" title="Zoom in">
+        <button class="ib" ref={zoomIn} onClick={() => view.zoomBy(1)} aria-label="Zoom in" title="Zoom in">
           <PlusIcon />
         </button>
-        <button class="ib" onClick={() => view.zoomBy(-1)} aria-label="Zoom out" title="Zoom out">
+        <button class="ib" ref={zoomOut} onClick={() => view.zoomBy(-1)} aria-label="Zoom out" title="Zoom out">
           <MinusIcon />
         </button>
         <button class="ib" onClick={() => actions.clearRegions()} aria-label="Reset view" title="Reset view">
