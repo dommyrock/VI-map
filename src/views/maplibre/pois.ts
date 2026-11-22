@@ -62,6 +62,19 @@ export function addPois(map: MLMap, ctx: ViewContext, cameraSettled: () => Promi
     },
   });
   map.addSource(HL_SRC, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  // Filter badges: while only a subset of categories is on, every visible POI sits on a white disc
+  // with an ink rim and a hard pink offset shadow (the tooltip's style), so the targeted
+  // categories pop out of the busy basemap. Hidden (filter matches nothing) when all are on.
+  const badgeRadius: ExpressionSpecification = ['interpolate', ['linear'], ['zoom'], 12, 10, 13, 11, 14, 13, 15, 17, 17, 19];
+  const NONE: ExpressionSpecification = ['==', ['get', 'id'], ''];
+  map.addLayer({
+    id: LAYERS.poiBadgeShadow, type: 'circle', source: SRC, filter: NONE,
+    paint: { 'circle-radius': badgeRadius, 'circle-color': '#e3168c', 'circle-translate': [2.5, 2.5], 'circle-stroke-color': '#1a0b2e', 'circle-stroke-width': 2 },
+  });
+  map.addLayer({
+    id: LAYERS.poiBadge, type: 'circle', source: SRC, filter: NONE,
+    paint: { 'circle-radius': badgeRadius, 'circle-color': '#ffffff', 'circle-stroke-color': '#1a0b2e', 'circle-stroke-width': 2 },
+  });
   // Selected POI: a yellow sticker disc with an ink rim and a hard pink offset shadow (poster style).
   const ringRadius: ExpressionSpecification = ['interpolate', ['linear'], ['zoom'], 12, 11, 15, 22, 17, 24];
   map.addLayer({
@@ -82,8 +95,15 @@ export function addPois(map: MLMap, ctx: ViewContext, cameraSettled: () => Promi
   map.addLayer({ id: LAYERS.poiHighlight, type: 'symbol', source: HL_SRC, layout: symbolLayout(1.4) });
 
   // Visibility = derived.visibleIds (single source of truth for what's on the map).
+  const total = data.categories.length;
   const offVisible = derived.visibleIds.subscribe((ids) => {
-    map.setFilter(LAYERS.pois, ['in', ['get', 'id'], ['literal', ids]]);
+    const shown: ExpressionSpecification = ['in', ['get', 'id'], ['literal', ids]];
+    map.setFilter(LAYERS.pois, shown);
+    // visibleIds recomputes on every filters change, so the category subset is current here.
+    const n = stores.filters.get().categories.size;
+    const badge = n > 0 && n < total ? shown : NONE;
+    map.setFilter(LAYERS.poiBadgeShadow, badge);
+    map.setFilter(LAYERS.poiBadge, badge);
   });
 
   // Highlight source: hovered + selected POI.

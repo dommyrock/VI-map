@@ -44,6 +44,8 @@ export const LAYERS = {
   regionCasing: 'region-casing',
   regionLine: 'region-line',
   labels: 'region-labels',
+  poiBadgeShadow: 'poi-badge-shadow',
+  poiBadge: 'poi-badge',
   poiShadow: 'poi-selected-shadow',
   poiRing: 'poi-selected-ring',
   pois: 'pois',
