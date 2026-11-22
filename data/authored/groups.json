@@ -1,0 +1,22 @@
+[
+  {
+    "id": "travel-navigation",
+    "name": "Travel / Navigation"
+  },
+  {
+    "id": "service",
+    "name": "Service"
+  },
+  {
+    "id": "activities",
+    "name": "Activities"
+  },
+  {
+    "id": "story-progression",
+    "name": "Story / Progression"
+  },
+  {
+    "id": "collectibles",
+    "name": "Collectibles"
+  }
+]

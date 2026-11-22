@@ -1,0 +1,108 @@
+[
+  {
+    "id": "airport",
+    "name": "Airport",
+    "groupId": "travel-navigation",
+    "icon": "airport.png",
+    "keyPriority": 1
+  },
+  {
+    "id": "police-station",
+    "name": "Police Station",
+    "groupId": "service",
+    "icon": "police-station.png",
+    "keyPriority": 10
+  },
+  {
+    "id": "hospital",
+    "name": "Hospital",
+    "groupId": "service",
+    "icon": "hospital.png",
+    "keyPriority": 9
+  },
+  {
+    "id": "gas-station",
+    "name": "Gas Station",
+    "groupId": "travel-navigation",
+    "icon": "gas-station.png"
+  },
+  {
+    "id": "airstrip",
+    "name": "Airstrip",
+    "groupId": "travel-navigation",
+    "icon": "airstrip.png"
+  },
+  {
+    "id": "speedway",
+    "name": "Speedway",
+    "groupId": "activities",
+    "icon": "speedway.png"
+  },
+  {
+    "id": "garage",
+    "name": "Garage",
+    "groupId": "story-progression",
+    "icon": "garage.png",
+    "keyPriority": 5
+  },
+  {
+    "id": "banks",
+    "name": "Banks",
+    "groupId": "service",
+    "icon": "banks.png",
+    "keyPriority": 4
+  },
+  {
+    "id": "pay-n-spray",
+    "name": "Pay 'n' Spray",
+    "groupId": "service",
+    "icon": "pay-n-spray.png"
+  },
+  {
+    "id": "vehicle-mod-shop",
+    "name": "Vehicle Mod Shop",
+    "groupId": "service",
+    "icon": "vehicle-mod-shop.png",
+    "keyPriority": 6
+  },
+  {
+    "id": "gun-store",
+    "name": "Gun Store",
+    "groupId": "service",
+    "icon": "gun-store.png",
+    "keyPriority": 8
+  },
+  {
+    "id": "race",
+    "name": "Race",
+    "groupId": "activities",
+    "icon": "race.png",
+    "keyPriority": 3
+  },
+  {
+    "id": "clothing-store",
+    "name": "Clothing Store",
+    "groupId": "service",
+    "icon": "clothing-store.png"
+  },
+  {
+    "id": "strip-club",
+    "name": "Strip Club",
+    "groupId": "activities",
+    "icon": "strip-club.png",
+    "keyPriority": 7
+  },
+  {
+    "id": "stunt-jump",
+    "name": "Stunt Jump",
+    "groupId": "activities",
+    "icon": "stunt-jump.png"
+  },
+  {
+    "id": "waink-landmarks",
+    "name": "WAiNK Landmarks",
+    "groupId": "collectibles",
+    "icon": "waink-landmarks.png",
+    "keyPriority": 2
+  }
+]

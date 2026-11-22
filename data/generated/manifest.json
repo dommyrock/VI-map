@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "mapSpace": "leonida-px@1",
+  "counts": {
+    "features": 419,
+    "categories": 16,
+    "groups": 5,
+    "regions": 6,
+    "byRegion": {
+      "mount-kalaga": 40,
+      "port-gellhorn": 73,
+      "ambrosia": 48,
+      "vice-city": 177,
+      "grassrivers": 55,
+      "leonida-keys": 26
+    }
+  },
+  "sources": [
+    {
+      "path": "data/sources/mobalytics-v0.json",
+      "sha256": "e246784421250c570e455ecc5a95cc0f8b49ebe2b6faa262e702e343cd878f9e",
+      "note": "Mobalytics GTA 6 interactive map, snapshot 2026-11-21"
+    },
+    {
+      "path": "data/sources/regions.px.json",
+      "sha256": "7d90137b9e1c839af7a24c8f2b0697c4d94eb99898e879231f60b34e08238df8",
+      "note": "tools/build_regions.py output"
+    },
+    {
+      "path": "data/authored/partition.geojson",
+      "sha256": "05837a6d309a02a246e1b0f390e055b2629d9abe7516f57141ca6d46ff944a6e"
+    },
+    {
+      "path": "data/authored/categories.json",
+      "sha256": "175d5bd84abb0a0739f690a694aa045ab31a56d93118f6bdd07bac0378bf6acf"
+    },
+    {
+      "path": "data/authored/groups.json",
+      "sha256": "6735767badc4ea8a6d5b68bcb3ba557dec2edca90e29d63e0d4e758a980864e5"
+    }
+  ]
+}

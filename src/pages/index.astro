@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import MapIsland from '../components/MapIsland';
+import regionsFile from '../../data/generated/regions.geojson?raw';
+import '../styles/app.css';
+
+const entries = await getCollection('regions');
+const regionIds = new Set(JSON.parse(regionsFile).features.map((f: { properties: { id: string } }) => f.properties.id));
+for (const e of entries) {
+  if (!regionIds.has(e.id)) throw new Error(`src/content/regions/${e.id}.md has no matching region id`);
+}
+const regionInfo = Object.fromEntries(entries.map((e) => [e.id, e.data]));
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Leonida Map</title>
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}favicon.svg`} />
+    <meta name="description" content="Interactive map of Leonida: regions, locations and activities." />
+  </head>
+  <body>
+    <MapIsland client:only="preact" regionInfo={regionInfo} />
+  </body>
+</html>

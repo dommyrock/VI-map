@@ -1,0 +1,216 @@
+/**
+ * MapLibre implementation of MapView. Subscribes to stores, writes only through actions,
+ * owns the camera (focus intents → fitBounds/easeTo with overlay padding).
+ */
+import 'maplibre-gl/dist/maplibre-gl.css';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
+import { LngLat, LngLatBounds, Map as MLMap, Popup, setWorkerUrl, type MapMouseEvent } from 'maplibre-gl';
+import { featureTitle } from '../../lib/data';
+import { lngLatToPx, pxToLngLat } from '../../lib/space';
+import type { FocusIntent } from '../../state/focus';
+import type { CreateView, FocusTarget, MapView, Padding } from '../types';
+import { pointToLngLat } from './convert';
+import { addLabels } from './labels';
+import { addPois, loadPoiIcons } from './pois';
+import { addRegions } from './regions';
+import { baseStyle, imageLngLatBounds, LAYERS, TILE_ZOOMS } from './style';
+import { addVeil } from './veil';
+
+setWorkerUrl(workerUrl);
+
+const EDGE = 40; // px of breathing room around fitted bounds
+const DURATION = 650;
+
+export const createMapLibreView: CreateView = (el, ctx) => {
+  const { data, stores, actions } = ctx;
+  const [w, s, e, n] = imageLngLatBounds();
+  const imageBounds = new LngLatBounds([w, s], [e, n]);
+
+  const map = new MLMap({
+    container: el,
+    style: baseStyle(),
+    bounds: imageBounds,
+    fitBoundsOptions: { padding: 24 },
+    minZoom: TILE_ZOOMS.min + 0.6,
+    maxZoom: 17.5,
+    maxBounds: imageBounds,
+    // Keep the camera center inside the image (the default maxBounds behaviour would forbid
+    // zooming out far enough to see the whole, tall map in a wide window).
+    transformConstrain: (center, zoom) => ({
+      center: new LngLat(Math.min(e, Math.max(w, center.lng)), Math.min(n, Math.max(s, center.lat))),
+      zoom,
+    }),
+    renderWorldCopies: false,
+    dragRotate: false,
+    pitchWithRotate: false,
+    touchPitch: false,
+    rollEnabled: false,
+    attributionControl: false,
+    maplibreLogo: false,
+    fadeDuration: 0,
+  });
+  map.touchZoomRotate.disableRotation();
+  map.keyboard.disableRotation();
+
+  // ---------- camera ----------
+  // A popup for a fly-to target opens once the camera has arrived (moveend), not on a timer.
+  let intentPending = false; // focus intent received, runs next frame
+  let flying = false; // focus() animation in progress
+  let settleWaiters: (() => void)[] = [];
+  const flushSettled = () => {
+    if (intentPending || flying) return;
+    const waiting = settleWaiters;
+    settleWaiters = [];
+    waiting.forEach((f) => f());
+  };
+  map.on('moveend', () => {
+    flying = false;
+    flushSettled();
+  });
+  const cameraSettled = () =>
+    new Promise<void>((resolve) => {
+      settleWaiters.push(resolve);
+      flushSettled();
+    });
+
+  const padding = (extra?: Partial<Padding>): Padding => ({
+    top: EDGE, left: EDGE, right: EDGE, bottom: EDGE + stores.insets.get().bottom, ...extra,
+  });
+
+  function focus(target: FocusTarget, opts: { padding?: Partial<Padding>; animate?: boolean } = {}) {
+    const duration = opts.animate === false ? 0 : DURATION;
+    const pad = padding(opts.padding);
+    if ('bbox' in target) {
+      const [x0, y0, x1, y1] = target.bbox;
+      const b = new LngLatBounds(pxToLngLat([x0, y1]), pxToLngLat([x1, y0]));
+      map.fitBounds(b, { padding: pad, duration, linear: true, maxZoom: 16 });
+    } else {
+      // Center the point in the part of the map not covered by overlays.
+      map.easeTo({
+        center: pointToLngLat(target.point),
+        zoom: Math.max(map.getZoom(), target.minZoom ?? 0),
+        offset: [(pad.left - pad.right) / 2, (pad.top - pad.bottom) / 2],
+        duration,
+      });
+    }
+    // Set after the call: starting a move interrupts a running one, whose moveend fires inside it.
+    flying = map.isMoving();
+    return cameraSettled();
+  }
+
+  // Focus intents from actions run on the next frame, after overlay UI (the drawer) has rendered
+  // and reported its height, so the fit pads for it. Intents before load jump (deep links).
+  let pendingIntent: FocusIntent | null = null;
+  let intentFrame = 0;
+  let loaded = false;
+  const runIntent = () => {
+    intentFrame = 0;
+    if (!pendingIntent || !loaded) return;
+    const it = pendingIntent;
+    pendingIntent = null;
+    intentPending = false;
+    void focus(it.target, { animate: it.animate });
+  };
+  const offFocus = ctx.focus.subscribe((intent) => {
+    pendingIntent = loaded ? intent : { ...intent, animate: false };
+    intentPending = true;
+    if (!intentFrame) intentFrame = requestAnimationFrame(runIntent);
+  });
+
+  // ---------- layers & interaction ----------
+  const offs: (() => void)[] = [];
+  const tooltip = new Popup({ closeButton: false, closeOnClick: false, focusAfterOpen: false, className: 'tip', offset: 14, anchor: 'bottom' });
+  const coords = document.createElement('div');
+  coords.className = 'coords';
+  el.appendChild(coords);
+
+  map.on('load', async () => {
+    offs.push(addRegions(map, ctx));
+    offs.push(addVeil(map, ctx, LAYERS.regionFill));
+    offs.push(addLabels(map, ctx));
+    await loadPoiIcons(map, ctx);
+    offs.push(addPois(map, ctx, cameraSettled));
+    loaded = true;
+    if (pendingIntent) runIntent();
+    el.dataset.ready = 'true';
+  });
+  let frame = 0;
+  let lastMove: MapMouseEvent | null = null;
+  const pointer = () => {
+    frame = 0;
+    const ev = lastMove;
+    if (!ev || !loaded) return;
+    const [x, y] = lngLatToPx([ev.lngLat.lng, ev.lngLat.lat]);
+    coords.textContent = `x ${x.toFixed(0)}  y ${y.toFixed(0)}`;
+    const poi = map.queryRenderedFeatures(ev.point, { layers: [LAYERS.pois] })[0];
+    if (poi) {
+      const f = data.featureById.get(poi.properties.id as string)!;
+      actions.setHover({ kind: 'feature', id: f.id });
+      const region = data.regionById.get(f.region);
+      tooltip.setHTML(`${esc(featureTitle(f, data))}${region ? ` <small>· ${esc(region.name)}</small>` : ''}`)
+        .setOffset(16).setLngLat(pointToLngLat(f.pos));
+      if (!tooltip.isOpen()) tooltip.addTo(map);
+      map.getCanvas().style.cursor = 'pointer';
+      return;
+    }
+    const reg = map.queryRenderedFeatures(ev.point, { layers: [LAYERS.regionFill] })[0];
+    if (reg) {
+      const r = data.regionById.get(reg.properties.id as string)!;
+      actions.setHover({ kind: 'region', id: r.id });
+      tooltip.setHTML(esc(r.name)).setOffset(10).setLngLat(ev.lngLat);
+      if (!tooltip.isOpen()) tooltip.addTo(map);
+      map.getCanvas().style.cursor = 'pointer';
+      return;
+    }
+    clearPointer();
+  };
+  const clearPointer = () => {
+    actions.setHover(null);
+    tooltip.remove();
+    map.getCanvas().style.cursor = '';
+  };
+  map.on('mousemove', (ev) => {
+    lastMove = ev;
+    if (!frame) frame = requestAnimationFrame(pointer);
+  });
+  map.on('mouseout', () => { lastMove = null; clearPointer(); coords.textContent = ''; });
+  map.on('dragstart', () => tooltip.remove());
+
+  map.on('click', (ev) => {
+    if (!loaded) return;
+    const poi = map.queryRenderedFeatures(ev.point, { layers: [LAYERS.pois] })[0];
+    if (poi) {
+      actions.selectFeature(poi.properties.id as string);
+      tooltip.remove();
+      return;
+    }
+    actions.selectFeature(null);
+    const reg = map.queryRenderedFeatures(ev.point, { layers: [LAYERS.regionFill] })[0];
+    if (reg) {
+      const o = ev.originalEvent;
+      actions.toggleRegion(reg.properties.id as string, { multi: o.metaKey || o.ctrlKey || o.shiftKey, fly: false });
+    }
+  });
+
+  const view: MapView = {
+    focus,
+    project(p) {
+      const pt = map.project(pxToLngLat(p));
+      return [pt.x, pt.y];
+    },
+    destroy() {
+      offFocus();
+      offs.forEach((off) => off());
+      if (intentFrame) cancelAnimationFrame(intentFrame);
+      if (frame) cancelAnimationFrame(frame);
+      tooltip.remove();
+      map.remove();
+      coords.remove();
+    },
+  };
+  // Handy for debugging / headless checks.
+  (el as HTMLElement & { __map?: MLMap }).__map = map;
+  return view;
+};
+
+const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);

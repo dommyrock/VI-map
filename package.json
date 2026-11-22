@@ -1,0 +1,37 @@
+{
+  "name": "leonida-map",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "npm run prepare-data && astro dev",
+    "build": "npm run prepare-data && npm run verify && astro check && astro build",
+    "preview": "astro preview",
+    "prepare-data": "tsx pipeline/tile.ts --if-missing && tsx pipeline/tag-regions.ts",
+    "data": "tsx pipeline/tag-regions.ts",
+    "tiles": "tsx pipeline/tile.ts",
+    "verify": "tsx pipeline/verify.ts",
+    "check": "astro check",
+    "migrate:v0": "tsx pipeline/migrate-v0.ts",
+    "regions": ".venv/bin/python tools/build_regions.py && tsx pipeline/tag-regions.ts"
+  },
+  "dependencies": {
+    "@astrojs/preact": "6.1.6",
+    "@nanostores/preact": "1.1.1",
+    "astro": "7.4.13",
+    "maplibre-gl": "6.19.0",
+    "nanostores": "1.5.5",
+    "preact": "11.2.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@types/node": "26.6.6",
+    "sharp": "0.35.5",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}
