@@ -24,7 +24,7 @@ WORK = 4          # work at 1/4 resolution (1444x1975), plenty for an overlay
 PREVIEW = 7.9     # coarse polygons below are in 731x1000 preview pixels
 
 # Coarse partition: data/authored/partition.geojson (image px) is the single authority.
-# (Originally hand-traced in 731x1000 preview px and scaled by PREVIEW; pipeline/migrate-v0.ts
+# (Originally hand-traced in 731x1000 preview px and scaled by PREVIEW; the one-off v0 migration (removed)
 # moved those polygons into the authored GeoJSON.)
 PARTITION = "data/authored/partition.geojson"
 

@@ -12,7 +12,6 @@
     "tiles": "tsx pipeline/tile.ts",
     "verify": "tsx pipeline/verify.ts",
     "check": "astro check",
-    "migrate:v0": "tsx pipeline/migrate-v0.ts",
     "regions": ".venv/bin/python tools/build_regions.py && tsx pipeline/tag-regions.ts"
   },
   "dependencies": {
