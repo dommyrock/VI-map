@@ -57,7 +57,7 @@ label.cat.empty { opacity: .4; }
 .coords:empty { display: none; }
 
 .drawer { --c: #fff; position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; max-height: 46vh; overflow-y: auto;
-  background: color-mix(in srgb, var(--panel) 96%, transparent); border-top: 2px solid var(--c);
+  background: var(--panel); border-top: 2px solid var(--c);
   box-shadow: 0 -10px 30px -10px color-mix(in srgb, var(--c) 45%, transparent);
   transform: translateY(100%); visibility: hidden; transition: transform .28s cubic-bezier(.2,.7,.2,1), visibility 0s .28s; will-change: transform; }
 .drawer.open { transform: none; visibility: visible; transition: transform .28s cubic-bezier(.2,.7,.2,1); }
