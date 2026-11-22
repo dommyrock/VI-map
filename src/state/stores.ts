@@ -13,8 +13,11 @@ export type Filters = {
 };
 export type Selection = { featureId: string | null };
 export type Hover = { kind: 'region' | 'feature'; id: string } | null;
-/** CSS px of the map covered by overlay UI (the drawer), used as camera padding. */
-export type Insets = { bottom: number };
+/** CSS px of the map covered by overlay UI (drawer at the bottom, glass sidebar on the left), used as camera padding. */
+export type Insets = { bottom: number; left: number };
+
+/** Sidebar starts open on wide screens, collapsed on phones. */
+const wideScreen = () => typeof matchMedia === 'undefined' || matchMedia('(min-width: 761px)').matches;
 
 export function createStores(ds: Dataset) {
   return {
@@ -27,7 +30,9 @@ export function createStores(ds: Dataset) {
     restoreCategories: atom<ReadonlySet<string> | null>(null),
     /** User closed the drawer for the current single-region selection. */
     drawerDismissed: atom(false),
-    insets: atom<Insets>({ bottom: 0 }),
+    insets: atom<Insets>({ bottom: 0, left: 0 }),
+    /** Filters sidebar expanded. UI-only: not in the URL. */
+    navOpen: atom(wideScreen()),
   };
 }
 export type Stores = ReturnType<typeof createStores>;

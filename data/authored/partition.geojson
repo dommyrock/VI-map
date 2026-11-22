@@ -8,7 +8,7 @@
         "id": "mount-kalaga",
         "name": "Mount Kalaga National Park",
         "shortName": "Mount Kalaga",
-        "color": "#c9a2ff",
+        "color": "#b98cff",
         "label": [
           3006.7,
           1776.4
@@ -76,7 +76,7 @@
         "id": "port-gellhorn",
         "name": "Port Gellhorn",
         "shortName": "Port Gellhorn",
-        "color": "#ffa94d",
+        "color": "#ff8a1f",
         "label": [
           1578.9,
           3159.4
@@ -144,7 +144,7 @@
         "id": "ambrosia",
         "name": "Ambrosia",
         "shortName": "Ambrosia",
-        "color": "#ffe066",
+        "color": "#ffd23f",
         "label": [
           3095.8,
           2807.4
@@ -212,7 +212,7 @@
         "id": "vice-city",
         "name": "Vice City",
         "shortName": "Vice City",
-        "color": "#ff7eb6",
+        "color": "#ff3fa4",
         "label": [
           3970.1,
           4062
@@ -280,7 +280,7 @@
         "id": "grassrivers",
         "name": "Grassrivers",
         "shortName": "Grassrivers",
-        "color": "#74e07c",
+        "color": "#7cff4f",
         "label": [
           2827.8,
           5788.4
@@ -368,7 +368,7 @@
         "id": "leonida-keys",
         "name": "Leonida Keys",
         "shortName": "Leonida Keys",
-        "color": "#5fd8ff",
+        "color": "#00d7ff",
         "label": [
           2682.4,
           6677.2

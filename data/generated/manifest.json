@@ -23,12 +23,12 @@
     },
     {
       "path": "data/sources/regions.px.json",
-      "sha256": "7d90137b9e1c839af7a24c8f2b0697c4d94eb99898e879231f60b34e08238df8",
+      "sha256": "2faace0733b56abafa7c86a68666e764805b1ba2548fd766b4322a51c95a625e",
       "note": "tools/build_regions.py output"
     },
     {
       "path": "data/authored/partition.geojson",
-      "sha256": "05837a6d309a02a246e1b0f390e055b2629d9abe7516f57141ca6d46ff944a6e"
+      "sha256": "bc72ad516407cca2be5a00d2a2582c9c9da5d585197c0c10515f8243c09b06ec"
     },
     {
       "path": "data/authored/categories.json",

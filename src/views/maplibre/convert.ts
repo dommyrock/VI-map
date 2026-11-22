@@ -1,4 +1,5 @@
 /** px geometry → lng/lat GeoJSON for MapLibre. The only place geometry leaves image-px space. */
+import { simplifyRing } from '../../lib/geo';
 import { pxToLngLat } from '../../lib/space';
 
 type Pt = readonly [number, number];
@@ -24,3 +25,20 @@ export function polygonToLngLat(rings: readonly (readonly Pt[])[]): [number, num
 }
 
 export const pointToLngLat = (p: Pt) => pxToLngLat(p);
+
+/** Outline simplification for display, image px (≈ what the eye can't see at home zoom). */
+const DISPLAY_TOLERANCE = 5;
+const displayCache = new WeakMap<object, Pt[][][]>();
+/**
+ * A region's polygons simplified for drawing (cached per geometry). The canonical px geometry
+ * stays untouched for tagging and hit-testing elsewhere; fill, outline and veil all use this one
+ * so their edges line up exactly.
+ */
+export function displayPolygons(coords: readonly (readonly (readonly Pt[])[])[]): Pt[][][] {
+  let out = displayCache.get(coords);
+  if (!out) {
+    out = coords.map((poly) => poly.map((ring) => simplifyRing(ring, DISPLAY_TOLERANCE)));
+    displayCache.set(coords, out);
+  }
+  return out;
+}

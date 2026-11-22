@@ -6,7 +6,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { LngLat, LngLatBounds, Map as MLMap, Popup, setWorkerUrl, type MapMouseEvent } from 'maplibre-gl';
 import { featureTitle } from '../../lib/data';
-import { lngLatToPx, pxToLngLat } from '../../lib/space';
+import type { Px } from '../../lib/schema';
+import { lngLatToPx, MAP_SPACE, pxToLngLat } from '../../lib/space';
 import type { FocusIntent } from '../../state/focus';
 import type { CreateView, FocusTarget, MapView, Padding } from '../types';
 import { pointToLngLat } from './convert';
@@ -20,6 +21,16 @@ setWorkerUrl(workerUrl);
 
 const EDGE = 40; // px of breathing room around fitted bounds
 const DURATION = 650;
+/** Home view: this much closer than fitting the whole image, centered on the mainland. */
+const HOME_ZOOM = 2.2;
+const HOME_CENTER: Px = [3150, 3880];
+/** Canvas-drawn region labels use this face; wait for it briefly so they don't render in a fallback. */
+const LABEL_FONT = '400 24px "Lilita One"';
+
+function fontReady(font: string, ms = 1500) {
+  if (typeof document === 'undefined' || !document.fonts) return Promise.resolve();
+  return Promise.race([document.fonts.load(font).then(() => undefined, () => undefined), new Promise<void>((r) => setTimeout(r, ms))]);
+}
 
 export const createMapLibreView: CreateView = (el, ctx) => {
   const { data, stores, actions } = ctx;
@@ -73,14 +84,20 @@ export const createMapLibreView: CreateView = (el, ctx) => {
       flushSettled();
     });
 
-  const padding = (extra?: Partial<Padding>): Padding => ({
-    top: EDGE, left: EDGE, right: EDGE, bottom: EDGE + stores.insets.get().bottom, ...extra,
-  });
+  const padding = (extra?: Partial<Padding>): Padding => {
+    const { bottom, left } = stores.insets.get();
+    return { top: EDGE, left: EDGE + left, right: EDGE, bottom: EDGE + bottom, ...extra };
+  };
+  const centerOffset = (pad: Padding): [number, number] => [(pad.left - pad.right) / 2, (pad.top - pad.bottom) / 2];
 
   function focus(target: FocusTarget, opts: { padding?: Partial<Padding>; animate?: boolean } = {}) {
     const duration = opts.animate === false ? 0 : DURATION;
     const pad = padding(opts.padding);
-    if ('bbox' in target) {
+    if ('home' in target) {
+      const cam = map.cameraForBounds(imageBounds, { padding: pad });
+      const zoom = Math.min(map.getMaxZoom(), (cam?.zoom ?? map.getZoom()) + Math.log2(HOME_ZOOM));
+      map.easeTo({ center: pointToLngLat(HOME_CENTER), zoom, offset: centerOffset(pad), duration });
+    } else if ('bbox' in target) {
       const [x0, y0, x1, y1] = target.bbox;
       const b = new LngLatBounds(pxToLngLat([x0, y1]), pxToLngLat([x1, y0]));
       map.fitBounds(b, { padding: pad, duration, linear: true, maxZoom: 16 });
@@ -89,7 +106,7 @@ export const createMapLibreView: CreateView = (el, ctx) => {
       map.easeTo({
         center: pointToLngLat(target.point),
         zoom: Math.max(map.getZoom(), target.minZoom ?? 0),
-        offset: [(pad.left - pad.right) / 2, (pad.top - pad.bottom) / 2],
+        offset: centerOffset(pad),
         duration,
       });
     }
@@ -111,6 +128,8 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     intentPending = false;
     void focus(it.target, { animate: it.animate });
   };
+  // Start on the home view; a deep link (?region= / ?f=) arriving below replaces it on load.
+  void focus({ home: true }, { animate: false });
   const offFocus = ctx.focus.subscribe((intent) => {
     pendingIntent = loaded ? intent : { ...intent, animate: false };
     intentPending = true;
@@ -127,8 +146,8 @@ export const createMapLibreView: CreateView = (el, ctx) => {
   map.on('load', async () => {
     offs.push(addRegions(map, ctx));
     offs.push(addVeil(map, ctx, LAYERS.regionFill));
+    await Promise.all([loadPoiIcons(map, ctx), fontReady(LABEL_FONT)]);
     offs.push(addLabels(map, ctx));
-    await loadPoiIcons(map, ctx);
     offs.push(addPois(map, ctx, cameraSettled));
     loaded = true;
     if (pendingIntent) runIntent();
@@ -201,6 +220,25 @@ export const createMapLibreView: CreateView = (el, ctx) => {
     project(p) {
       const pt = map.project(pxToLngLat(p));
       return [pt.x, pt.y];
+    },
+    zoomBy(delta) {
+      map.easeTo({ zoom: map.getZoom() + delta, duration: 300 });
+    },
+    panTo(p) {
+      map.easeTo({ center: pointToLngLat(p), duration: 450 });
+    },
+    onCamera(cb) {
+      // Called from MapLibre's move loop: the subscriber writes styles directly, no re-render.
+      const emit = () => {
+        const b = map.getBounds();
+        const [x0, y0] = lngLatToPx([b.getWest(), b.getNorth()]);
+        const [x1, y1] = lngLatToPx([b.getEast(), b.getSouth()]);
+        cb({ x0: x0 / MAP_SPACE.width, y0: y0 / MAP_SPACE.height, x1: x1 / MAP_SPACE.width, y1: y1 / MAP_SPACE.height });
+      };
+      map.on('move', emit);
+      map.on('resize', emit);
+      emit();
+      return () => { map.off('move', emit); map.off('resize', emit); };
     },
     destroy() {
       offFocus();

@@ -12,7 +12,8 @@ import type { FocusBus } from '../state/focus';
 import type { Stores } from '../state/stores';
 
 export type Padding = { top: number; right: number; bottom: number; left: number };
-export type FocusTarget = { bbox: BBox } | { point: Px; minZoom?: number };
+/** `home`: the default overview, zoomed in on the mainland (see HOME_* in the map view). */
+export type FocusTarget = { bbox: BBox } | { point: Px; minZoom?: number } | { home: true };
 
 export type ViewContext = {
   data: Dataset;
@@ -28,6 +29,12 @@ export interface MapView {
   focus(target: FocusTarget, opts?: { padding?: Partial<Padding>; animate?: boolean }): Promise<void>;
   /** Image px → container CSS px. */
   project(p: Px): [number, number];
+  /** Zoom in (+) or out (−) by `delta` levels around the center. */
+  zoomBy(delta: number): void;
+  /** Center the camera on an image px position, keeping the zoom. */
+  panTo(p: Px): void;
+  /** Visible extent as image fractions (0–1), on every camera change and once on subscribe. */
+  onCamera(cb: (r: { x0: number; y0: number; x1: number; y1: number }) => void): () => void;
   destroy(): void;
 }
 

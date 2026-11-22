@@ -62,13 +62,15 @@ export function addPois(map: MLMap, ctx: ViewContext, cameraSettled: () => Promi
     },
   });
   map.addSource(HL_SRC, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  // Selected POI: a yellow sticker disc with an ink rim and a hard pink offset shadow (poster style).
+  const ringRadius: ExpressionSpecification = ['interpolate', ['linear'], ['zoom'], 12, 11, 15, 22, 17, 24];
+  map.addLayer({
+    id: LAYERS.poiShadow, type: 'circle', source: HL_SRC, filter: ['==', ['get', 'role'], 'selected'],
+    paint: { 'circle-radius': ringRadius, 'circle-color': '#e3168c', 'circle-translate': [3, 3], 'circle-stroke-color': '#1a0b2e', 'circle-stroke-width': 2.5 },
+  });
   map.addLayer({
     id: LAYERS.poiRing, type: 'circle', source: HL_SRC, filter: ['==', ['get', 'role'], 'selected'],
-    paint: {
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 11, 15, 22, 17, 24],
-      'circle-color': '#ff4f9a', 'circle-opacity': 0.22,
-      'circle-stroke-color': '#ff4f9a', 'circle-stroke-width': 2.5, 'circle-stroke-opacity': 0.95,
-    },
+    paint: { 'circle-radius': ringRadius, 'circle-color': '#ffd23f', 'circle-stroke-color': '#1a0b2e', 'circle-stroke-width': 2.5 },
   });
   const symbolLayout = (k: number) => ({
     'icon-image': ['get', 'category'] as ExpressionSpecification,

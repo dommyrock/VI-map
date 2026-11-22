@@ -1,10 +1,9 @@
 /** The only writers of state. Views and components call these; they never set atoms directly. */
 import type { Dataset } from '../lib/data';
 import { unionBBox } from '../lib/geo';
-import { IMAGE_BBOX } from '../lib/space';
 import type { Derived } from './derived';
 import type { FocusBus } from './focus';
-import type { Filters, Hover, Stores } from './stores';
+import type { Filters, Hover, Insets, Stores } from './stores';
 
 /** Zoom used when flying to a single POI (never zooms out). */
 const POI_ZOOM = 15;
@@ -49,7 +48,7 @@ export function createActions(ds: Dataset, s: Stores, d: Derived, focus: FocusBu
     },
     clearRegions({ fly = true } = {}) {
       setFilters({ regions: new Set() });
-      if (fly) focus.emit({ target: { bbox: IMAGE_BBOX } });
+      if (fly) focus.emit({ target: { home: true } });
     },
 
     setCategory(id: string, on: boolean) {
@@ -101,8 +100,13 @@ export function createActions(ds: Dataset, s: Stores, d: Derived, focus: FocusBu
     openDrawer() {
       s.drawerDismissed.set(false);
     },
-    setInsets(bottom: number) {
-      if (s.insets.get().bottom !== bottom) s.insets.set({ bottom });
+    setInsets(next: Partial<Insets>) {
+      const cur = s.insets.get();
+      const merged = { ...cur, ...next };
+      if (merged.bottom !== cur.bottom || merged.left !== cur.left) s.insets.set(merged);
+    },
+    setNavOpen(open: boolean) {
+      s.navOpen.set(open);
     },
   };
   return actions;

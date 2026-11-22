@@ -8,6 +8,7 @@ import { iconUrl, postcardUrl } from '../lib/assets';
 import type { Region } from '../lib/data';
 import type { Feature } from '../lib/schema';
 import { useApp } from './context';
+import { CloseIcon } from './icons';
 
 const MAX_KEYS = 14;
 
@@ -24,7 +25,7 @@ export function Drawer() {
   useLayoutEffect(() => {
     const node = el.current!;
     // offsetHeight ignores the slide transform, so this is the final height even mid-animation.
-    const report = () => actions.setInsets(open ? node.offsetHeight : 0);
+    const report = () => actions.setInsets({ bottom: open ? node.offsetHeight : 0 });
     report();
     const ro = new ResizeObserver(report);
     ro.observe(node);
@@ -44,7 +45,7 @@ export function Drawer() {
       </section>
       {region && !open && (
         <button class="details-pill" style={{ '--c': region.color }} onClick={() => actions.openDrawer()}>
-          ⓘ {region.name}
+          About {region.name}
         </button>
       )}
     </>
@@ -67,8 +68,8 @@ function DrawerBody({ region: r }: { region: Region }) {
 
   return (
     <div class="dw">
-      <button class="x" title="Hide details" aria-label="Hide details" onClick={() => actions.dismissDrawer()}>
-        ×
+      <button class="ib x" title="Hide details" aria-label="Hide details" onClick={() => actions.dismissDrawer()}>
+        <CloseIcon />
       </button>
       <div>
         {info?.postcard && (
@@ -76,9 +77,9 @@ function DrawerBody({ region: r }: { region: Region }) {
         )}
       </div>
       <div>
+        {info?.realWorld && <div class="rw">Inspired by {info.realWorld}</div>}
         <h2>{r.name}</h2>
         {info?.tagline && <div class="tag">“{info.tagline}”</div>}
-        {info?.realWorld && <div class="rw">Inspired by {info.realWorld}</div>}
         <ul class="sum">
           {info?.summary.map((t) => (
             <li key={t}>{t}</li>
@@ -86,7 +87,7 @@ function DrawerBody({ region: r }: { region: Region }) {
         </ul>
       </div>
       <div class="col3">
-        <h4>{total} locations</h4>
+        <h4>{total} places · tap one to show only it</h4>
         <div class="chips">
           {chips.map(([catId, list]) => {
             const c = data.categoryById.get(catId)!;
@@ -106,7 +107,7 @@ function DrawerBody({ region: r }: { region: Region }) {
         </div>
         {keys.length > 0 && (
           <>
-            <h4>Key locations</h4>
+            <h4>Must-see</h4>
             <div class="keys">
               {keys.map((f) => {
                 const c = data.categoryById.get(f.category)!;

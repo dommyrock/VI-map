@@ -5,7 +5,8 @@
 import type { BBox } from '../lib/geo';
 import type { Px } from '../lib/schema';
 
-export type FocusTarget = { bbox: BBox } | { point: Px; minZoom?: number };
+/** `home`: the default overview, zoomed in on the mainland (see HOME_* in the map view). */
+export type FocusTarget = { bbox: BBox } | { point: Px; minZoom?: number } | { home: true };
 export type FocusIntent = {
   target: FocusTarget;
   /** false = jump (initial deep link). Default true. */

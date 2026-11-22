@@ -1,5 +1,5 @@
 /**
- * Region name labels. Rendered once into canvas images (text + colored glow) and drawn by a
+ * Region name labels. Rendered once into canvas images (poster lettering, see labelImage) and drawn by a
  * symbol layer, so there's no glyph server and no per-label DOM. Dimming is feature-state.
  */
 import type { Map as MLMap } from 'maplibre-gl';
@@ -9,29 +9,38 @@ import { LAYERS } from './style';
 
 const SRC = 'region-labels';
 
+const INK = '#1a0b2e';
+const SIZE = 24; // CSS px at icon-size 1
+const SKEW = 0.14; // italic lean, like the poster's "VICE CITY"
+
+/**
+ * Poster lettering: white Lilita One with a thick ink outline and a hard offset shadow in the
+ * region's colour (itself ink-outlined). Drawn once per region at device resolution.
+ */
 function labelImage(text: string, color: string, dpr: number) {
-  const font = `800 ${15 * dpr}px system-ui, -apple-system, "Segoe UI", sans-serif`;
-  const spacing = 0.06 * 15 * dpr;
-  const pad = 14 * dpr;
+  const size = SIZE * dpr, stroke = 4 * dpr, off = 4 * dpr, pad = 10 * dpr;
+  const font = `400 ${size}px "Lilita One", "Arial Black", Impact, sans-serif`;
   const measure = document.createElement('canvas').getContext('2d')!;
   measure.font = font;
-  const chars = [...text.toUpperCase()];
-  const textW = chars.reduce((w, c) => w + measure.measureText(c).width + spacing, -spacing);
-  const w = Math.ceil(textW + pad * 2), h = Math.ceil(15 * dpr * 1.3 + pad * 2);
+  const textW = measure.measureText(text).width;
+  const h = Math.ceil(size * 1.25 + pad * 2 + off);
+  const w = Math.ceil(textW + pad * 2 + off + SKEW * h);
   const canvas = document.createElement('canvas');
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d')!;
+  ctx.setTransform(1, 0, -SKEW, 1, SKEW * h * 0.5, 0);
   ctx.font = font;
   ctx.textBaseline = 'middle';
-  const draw = () => {
-    let x = pad;
-    for (const c of chars) { ctx.fillText(c, x, h / 2); x += ctx.measureText(c).width + spacing; }
-  };
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = stroke * 2; // strokes are centred on the glyph edge: 2× for an outer width of `stroke`
+  ctx.strokeStyle = INK;
+  const x = pad, y = (h - off) / 2;
+  ctx.strokeText(text, x + off, y + off);
+  ctx.fillStyle = color;
+  ctx.fillText(text, x + off, y + off);
+  ctx.strokeText(text, x, y);
   ctx.fillStyle = '#fff';
-  // Same recipe as the prototype's text-shadow: 0 0 4px #000, 0 0 12px <region color>
-  ctx.shadowColor = color; ctx.shadowBlur = 12 * dpr; draw();
-  ctx.shadowColor = '#000'; ctx.shadowBlur = 4 * dpr; draw();
-  ctx.shadowBlur = 0; draw();
+  ctx.fillText(text, x, y);
   return ctx.getImageData(0, 0, w, h);
 }
 
@@ -52,6 +61,7 @@ export function addLabels(map: MLMap, { data, stores }: ViewContext) {
     id: LAYERS.labels, type: 'symbol', source: SRC,
     layout: {
       'icon-image': ['concat', 'label-', ['get', 'id']],
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 12, 0.72, 14, 1, 16, 1.2],
       'icon-allow-overlap': true,
       'icon-ignore-placement': true,
     },

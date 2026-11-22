@@ -80,3 +80,39 @@ export function closeRing(ring: readonly Pt[]): Px[] {
   if (a[0] !== b[0] || a[1] !== b[1]) out.push([a[0], a[1]]);
   return out;
 }
+
+/**
+ * Douglas–Peucker simplification of a closed ring (first === last), image px. Drops the
+ * stair-steps of pixel-traced outlines so they render as clean lines. Keeps ≥ 4 points.
+ */
+export function simplifyRing(ring: readonly Pt[], tolerance: number): Px[] {
+  const pts = ring.map((p) => [p[0], p[1]] as Px);
+  if (pts.length <= 4) return pts;
+  const keep = new Uint8Array(pts.length);
+  keep[0] = keep[pts.length - 1] = 1;
+  // Split at the point farthest from the start so a closed ring has a real baseline.
+  let far = 1, farD = -1;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const d = Math.hypot(pts[i][0] - pts[0][0], pts[i][1] - pts[0][1]);
+    if (d > farD) { farD = d; far = i; }
+  }
+  keep[far] = 1;
+  const stack: [number, number][] = [[0, far], [far, pts.length - 1]];
+  const tol2 = tolerance * tolerance;
+  while (stack.length) {
+    const [a, b] = stack.pop()!;
+    const [ax, ay] = pts[a], [bx, by] = pts[b];
+    const dx = bx - ax, dy = by - ay, len2 = dx * dx + dy * dy;
+    let idx = -1, max = tol2;
+    for (let i = a + 1; i < b; i++) {
+      const [px, py] = pts[i];
+      const t = len2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / len2)) : 0;
+      const ex = ax + t * dx - px, ey = ay + t * dy - py;
+      const d2 = ex * ex + ey * ey;
+      if (d2 > max) { max = d2; idx = i; }
+    }
+    if (idx >= 0) { keep[idx] = 1; stack.push([a, idx], [idx, b]); }
+  }
+  const out = pts.filter((_, i) => keep[i]);
+  return out.length >= 4 ? out : pts;
+}

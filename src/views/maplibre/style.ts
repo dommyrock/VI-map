@@ -4,7 +4,7 @@ import { assetPath } from '../../lib/assets';
 import { MAP_SPACE, pxToLngLat } from '../../lib/space';
 
 export const TILE_ZOOMS = { min: 11, max: MAP_SPACE.nativeZoom };
-export const WATER = '#0b2a3a';
+export const WATER = '#0fa6c4';
 
 /** Image extent as [west, south, east, north]. */
 export function imageLngLatBounds(): [number, number, number, number] {
@@ -41,8 +41,10 @@ export const LAYERS = {
   veil: 'veil',
   regionFill: 'region-fill',
   regionGlow: 'region-glow',
+  regionCasing: 'region-casing',
   regionLine: 'region-line',
   labels: 'region-labels',
+  poiShadow: 'poi-selected-shadow',
   poiRing: 'poi-selected-ring',
   pois: 'pois',
   poiHighlight: 'poi-highlight',
