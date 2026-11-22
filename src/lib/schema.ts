@@ -133,7 +133,7 @@ export const RegionInfo = z.object({
   tagline: z.string().optional(),
   realWorld: z.string().optional(),
   /** File name under /assets/postcards/ */
-  postcard: z.string().optional(),
+  postcard: z.string().regex(/^[a-z0-9_-]+\.(?:png|jpe?g|webp)$/).optional(),
   summary: z.array(z.string()).default([]),
 });
 export type RegionInfo = z.infer<typeof RegionInfo>;
