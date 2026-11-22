@@ -10,6 +10,8 @@ import { createDerived } from '../state/derived';
 import { createFocusBus } from '../state/focus';
 import { createStores } from '../state/stores';
 import { applyUrl, syncUrl } from '../state/url';
+import type { BBox } from '../lib/geo';
+import { MAP_SPACE } from '../lib/space';
 import type { MapView } from '../views/types';
 import { App, useApp, type AppContext } from './context';
 import { Drawer } from './Drawer';
@@ -90,28 +92,44 @@ function Shell() {
 
 function MapCanvas() {
   const ctx = useApp();
+  const mode = useStore(ctx.stores.viewMode);
   const el = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<MapView | null>(null);
+  /** Last visible extent (image px), so switching 2D ⇄ 3D keeps looking at the same place. */
+  const extent = useRef<BBox | null>(null);
+  useEffect(() => syncUrl(ctx.stores), []);
   useEffect(() => {
     let destroyed = false;
     let destroy = () => {};
-    const offUrl = syncUrl(ctx.stores);
-    // MapLibre is the heavy part of the bundle: load it after the shell has painted.
-    import('../views/maplibre').then(({ createMapLibreView }) => {
+    const carry = extent.current;
+    setView(null);
+    // Both renderers are heavy: load them after the shell has painted (3D only when toggled on).
+    const load = mode === '3d'
+      ? import('../views/three').then((m) => m.createThreeView)
+      : import('../views/maplibre').then((m) => m.createMapLibreView);
+    load.then((create) => {
       if (destroyed) return;
-      const v = createMapLibreView(el.current!, ctx);
+      const v = create(el.current!, ctx);
       setView(v);
-      destroy = () => v.destroy();
+      const offCam = v.onCamera(({ x0, y0, x1, y1 }) => {
+        extent.current = [x0 * MAP_SPACE.width, y0 * MAP_SPACE.height, x1 * MAP_SPACE.width, y1 * MAP_SPACE.height];
+      });
+      if (carry) void v.focus({ bbox: carry }, { animate: false });
+      // Teardown runs after the current render: Preact calls effect cleanups at the start of the next render, and a
+      // view's destroy() unmounts its popup with a nested render(), which would break the outer render's hooks.
+      destroy = () => { offCam(); queueMicrotask(() => v.destroy()); };
+    }, (e) => {
+      console.error(e);
+      if (mode === '3d') ctx.actions.setViewMode('2d'); // 3D failed to load (e.g. no WebGL): fall back to 2D
     });
     return () => {
       destroyed = true;
-      offUrl();
       destroy();
     };
-  }, []);
+  }, [mode]);
   return (
     <>
-      <div class="map" ref={el} />
+      <div class="map" key={mode} ref={el} />
       {view && <MapControls view={view} />}
     </>
   );

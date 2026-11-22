@@ -15,6 +15,8 @@ export type Selection = { featureId: string | null };
 export type Hover = { kind: 'region' | 'feature'; id: string } | null;
 /** CSS px of the map covered by overlay UI (drawer at the bottom, glass sidebar on the left), used as camera padding. */
 export type Insets = { bottom: number; left: number };
+/** Which map renderer is shown: the 2D MapLibre map (default) or the stylized 3D view. */
+export type ViewMode = '2d' | '3d';
 
 /** Sidebar starts open on wide screens, collapsed on phones. */
 const wideScreen = () => typeof matchMedia === 'undefined' || matchMedia('(min-width: 761px)').matches;
@@ -33,6 +35,8 @@ export function createStores(ds: Dataset) {
     insets: atom<Insets>({ bottom: 0, left: 0 }),
     /** Filters sidebar expanded. UI-only: not in the URL. */
     navOpen: atom(wideScreen()),
+    /** 2D/3D toggle under "Reset view". In the URL as ?view=3d. */
+    viewMode: atom<ViewMode>('2d'),
   };
 }
 export type Stores = ReturnType<typeof createStores>;

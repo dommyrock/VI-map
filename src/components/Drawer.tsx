@@ -13,9 +13,11 @@ import { CloseIcon } from './icons';
 const MAX_KEYS = 14;
 
 export function Drawer() {
-  const { derived, actions } = useApp();
+  const { derived, actions, stores } = useApp();
   const region = useStore(derived.drawerRegion);
-  const open = useStore(derived.drawerOpen);
+  // 3D view: no drawer or "About …" pill (they cover too much of the scene); a region click just flies to its viewpoint.
+  const is3d = useStore(stores.viewMode) === '3d';
+  const open = useStore(derived.drawerOpen) && !is3d;
   // Keep showing the last region while the panel slides out.
   const last = useRef<Region | null>(null);
   if (region) last.current = region;
@@ -43,7 +45,7 @@ export function Drawer() {
       >
         {r && <DrawerBody region={r} />}
       </section>
-      {region && !open && (
+      {region && !open && !is3d && (
         <button class="details-pill" style={{ '--c': region.color }} onClick={() => actions.openDrawer()}>
           About {region.name}
         </button>

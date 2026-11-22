@@ -1,7 +1,8 @@
 /**
- * Zoom buttons + minimap. The minimap's viewport box is updated straight from the map's move
+ * Zoom buttons, reset, 2D/3D toggle + minimap. The minimap's viewport box is updated straight from the map's move
  * loop (style writes on a ref), so panning never re-renders Preact.
  */
+import { useStore } from '@nanostores/preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { assetPath } from '../lib/assets';
 import { MAP_SPACE } from '../lib/space';
@@ -10,7 +11,8 @@ import { useApp } from './context';
 import { HomeViewIcon, MinusIcon, PlusIcon } from './icons';
 
 export function MapControls({ view }: { view: MapView }) {
-  const { actions } = useApp();
+  const { actions, stores } = useApp();
+  const mode = useStore(stores.viewMode);
   const box = useRef<HTMLSpanElement>(null);
   const inner = useRef<HTMLSpanElement>(null);
   const zoomIn = useRef<HTMLButtonElement>(null);
@@ -50,6 +52,15 @@ export function MapControls({ view }: { view: MapView }) {
         </button>
         <button class="ib" onClick={() => actions.clearRegions()} aria-label="Reset view" title="Reset view">
           <HomeViewIcon />
+        </button>
+        <button
+          class="ib vm"
+          onClick={() => actions.setViewMode(mode === '3d' ? '2d' : '3d')}
+          aria-pressed={mode === '3d'}
+          aria-label={mode === '3d' ? 'Switch to 2D map' : 'Switch to 3D view'}
+          title={mode === '3d' ? 'Back to the 2D map' : '3D view (beta)'}
+        >
+          {mode === '3d' ? '2D' : '3D'}
         </button>
       </div>
       <button class="mini" onClick={jump} aria-label="Minimap — click to jump there" title="Click to jump there">

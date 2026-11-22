@@ -3,7 +3,7 @@ import type { Dataset } from '../lib/data';
 import { unionBBox } from '../lib/geo';
 import type { Derived } from './derived';
 import type { FocusBus } from './focus';
-import type { Filters, Hover, Insets, Stores } from './stores';
+import type { Filters, Hover, Insets, Stores, ViewMode } from './stores';
 
 /** Zoom used when flying to a single POI (never zooms out). */
 const POI_ZOOM = 15;
@@ -115,6 +115,9 @@ export function createActions(ds: Dataset, s: Stores, d: Derived, focus: FocusBu
     },
     setNavOpen(open: boolean) {
       s.navOpen.set(open);
+    },
+    setViewMode(mode: ViewMode) {
+      if (s.viewMode.get() !== mode) s.viewMode.set(mode);
     },
   };
   return actions;

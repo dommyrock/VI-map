@@ -143,6 +143,20 @@ aside.side footer img, aside.side footer svg { display: block; flex: none; }
 /* ---------- Map controls ---------- */
 .mapctl { position: absolute; right: 16px; top: 16px; z-index: 5; display: flex; flex-direction: column; gap: 8px; }
 .mapctl .ib { width: 44px; height: 44px; }
+.mapctl .vm { font: 400 16px/1 var(--display); letter-spacing: .02em; color: var(--ink); }
+.mapctl .vm[aria-pressed="true"] { background: var(--sun); }
+/* 3D view: tooltip + feature popup reuse the 2D look (MapLibre popup classes aren't present there) */
+.v3-tip { position: absolute; z-index: 6; pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); background: var(--paper); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 4px; box-shadow: 3px 3px 0 var(--pink); font: 700 13.5px Outfit, system-ui, sans-serif; padding: 5px 10px; white-space: nowrap; }
+.v3-tip small { color: var(--ink-2); font-weight: 500; }
+.v3-pop { position: absolute; z-index: 6; width: 300px; max-width: calc(100% - 32px); transform: translate(-50%, calc(-100% - 22px)); background: var(--paper);
+  color: var(--ink); border: 2.5px solid var(--ink); border-radius: 6px; box-shadow: 5px 5px 0 var(--ink); font: 14px/1.45 Outfit, system-ui, sans-serif; overflow: hidden; }
+.v3-pop > button { position: absolute; top: 3px; right: 3px; width: 28px; height: 28px; border: 0; border-radius: 3px; background: none; color: var(--ink);
+  font-size: 20px; line-height: 1; cursor: pointer; }
+.v3-pop > button:hover { background: rgba(255, 255, 255, .55); }
+.map[data-mode="3d"] { background: #9fd3ea; touch-action: none; }
+.v3-loading { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; font: 400 22px var(--display); color: var(--ink);
+  text-shadow: 2px 2px 0 #fff; pointer-events: none; }
 .mini { position: absolute; right: 16px; bottom: calc(var(--dock-b, 0px) + 16px); z-index: 5; width: 120px; height: 160px; padding: 5px;
   border: 1px solid rgba(255, 255, 255, .45); border-radius: 6px; cursor: crosshair;
   background: linear-gradient(160deg, rgba(227, 22, 140, .62), rgba(111, 31, 184, .66));
