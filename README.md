@@ -36,6 +36,21 @@ The map opens on a close-up overview of the mainland; zoom out to see the whole 
 - **Popups**: click a marker for its name, category, region and map coordinates. Hovering over markers and regions shows a tooltip.
 - **Shareable links**: the URL keeps the selected regions and the open location (`?region=vice-city,ambrosia&f=<id>`), so you can copy the address bar to share exactly what you're looking at.
 
+## Tech stack
+
+| Tool | What it does here |
+| --- | --- |
+| [Astro](https://astro.build/) | Builds the single static page and validates the region write-ups (Markdown content collection) at build time. |
+| [Preact](https://preactjs.com/) | Renders the interactive UI (header tabs, sidebar, search, drawer, map controls) as one client-side island. |
+| [nanostores](https://github.com/nanostores/nanostores) | Holds app state (filters, selection, hover) in tiny atoms that the UI and the map both subscribe to. |
+| [MapLibre GL JS](https://maplibre.org/) | Draws the map on the GPU: the tiled base image, region outlines, markers and labels. |
+| [Zod](https://zod.dev/) | Validates every data file against a schema, so bad data fails the build instead of the page. |
+| [TypeScript](https://www.typescriptlang.org/) | Types the app and the data pipeline end to end; `astro check` runs in every build. |
+| [sharp](https://sharp.pixelplumbing.com/) | Cuts the big source map image into the WebP tile pyramid MapLibre loads. |
+| [tsx](https://tsx.is/) | Runs the TypeScript pipeline scripts (tiling, region tagging, verification) directly in Node. |
+| Python + [OpenCV](https://opencv.org/) | Traces coastline-accurate region polygons from the map image (only needed when regions change). |
+| [GitHub Pages](https://pages.github.com/) + Actions | Builds and deploys the site on every push to `main`. |
+
 ## Run locally
 
 You need **Node.js 22.23.4 or newer** (CI uses Node 24).
